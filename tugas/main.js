@@ -1,4 +1,6 @@
 // require('./storage-service/main');
-const server = require('./task/server');
+const serverTask = require('./task/server');
+const serverWorker = require('./worker/server');
 
-server.run();
+// serverTask.run();
+serverWorker.run();

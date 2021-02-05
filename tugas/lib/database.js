@@ -2,18 +2,20 @@
 const { Sequelize } = require('sequelize');
 const path = require('path');
 const { defineTask } = require('../task/model');
+const { defineWorker } = require('../worker/model');
 
 let task;
+let worker;
 
-// function setupRelationship(orm) {
-//   worker = defineWorker(orm);
-//   task = defineTask(orm);
+function setupRelationship(orm) {
+  worker = defineWorker(orm);
+  task = defineTask(orm);
 
-//   task.belongsTo(worker, {
-//     onDelete: 'cascade',
-//     foreignKey: 'assigneeId',
-//   });
-// }
+  task.belongsTo(worker, {
+    onDelete: 'cascade',
+    foreignKey: 'assigneeId',
+  });
+}
 
 async function init() {
   const orm1 = new Sequelize('sanbercode2', 'root', '', {
@@ -24,18 +26,29 @@ async function init() {
   });
   const orm = orm1;
   await orm.authenticate();
-  //   setupRelationship(orm);
+  // setupRelationship(orm);
   task = defineTask(orm);
+  worker = defineWorker(orm);
   await orm.sync();
 }
 
 async function writeData(data) {
-  await task.create({
-    job: data.job,
-    attachment: data.attachment,
-    done: data.done,
-    cancel: data.cancel,
-  });
+  if (!data.job) {
+    await worker.create({
+      name: data.name,
+      photo: data.photo,
+      address: data.address,
+      email: data.email,
+      phone: data.phone,
+    });
+  } else {
+    await task.create({
+      job: data.job,
+      attachment: data.attachment,
+      done: data.done,
+      cancel: data.cancel,
+    });
+  }
 }
 
 async function updateTask(data) {
